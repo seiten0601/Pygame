@@ -52,7 +52,7 @@ class Player:
 		self.rect = self.image.get_rect(center=(x, y))
 
 		self.counter = 0
-		self.speed = 3
+		self.speed = 4
 		self.health = 100
 		self.fuel = 100
 		self.powerup = 0
