@@ -64,7 +64,7 @@ lost_font = pygame.font.SysFont("comicsans", 60)
 game_over_msg = Message(WIDTH//2, 300, 30, 'LOSE', game_over_font, WHITE, win)
 score_msg = Message(WIDTH-50, 28, 30, '0',final_score_font, RED, win)
 final_score_msg = Message(WIDTH//2, 340, 30, '0', final_score_font, RED, win)
-hight_score_msg = Message(WIDTH//2, 370, 30, '0', hight_score_font, WHITE, win)
+hight_score_msg = Message(WIDTH//2, 410, 30, '0', hight_score_font, WHITE, win)
 tap_to_play_msg = tap_to_play = BlinkingText(WIDTH//2, HEIGHT-60, 25, "START",
 				 tap_to_play_font, WHITE, win)
 
@@ -102,13 +102,11 @@ def score_display(game_state):
 		score_rect = hight_score_surface.get_rect(center = (350, 30))
 		SCREEN.blit(score_surface, score_rect)
 	if game_state == 'score_page':
-		hight_score_surface = game_font.pygame.font.render(f'Hight Score:{int(hight_score)}', True, WHITE)
+		hight_score_surface = game_font.pygame.font.render(f'Hight Score:{int(high_score)}', True, WHITE)
 		hight_score_rect = hight_score_surface.get_rect(center = (350, 30))
 		SCREEN.blit(hight_score_surface, hight_score_rect)
-def update_score(score, hight_score):
-	if score > hight_score:
-		hight_score = score
-	return hight_score 	
+
+
 def shoot_bullet():
 	x, y = p.rect.center[0], p.rect.y
 	if p.powerup > 0:
@@ -120,6 +118,7 @@ def shoot_bullet():
 		b = Bullet(x, y, 6)
 		player_bullet_group.add(b)
 	player_bullet_fx.play()
+
 
 def shoot_bullet1():
 	x, y = p.rect.center[0], p.rect.y
@@ -134,6 +133,7 @@ def shoot_bullet1():
 		player_bullet_group.add(b)
 	player_bullet_fx.play()	
 
+
 def reset():
 	enemy_group.empty()
 	player_bullet_group.empty()
@@ -143,6 +143,13 @@ def reset():
 	powerup_group.empty()
 	powerup1_group.empty()
 	p.reset(p.x, p.y)
+
+
+def update_high_score():
+	global score, high_score
+
+	if score > high_score:
+		high_score = score
 
 # VARIABLES *******************************************************************
 
@@ -161,8 +168,9 @@ game_page = False
 score_page = False
 
 score = 0
-hight_score = 0
+high_score = 0
 sound_on = False
+
 
 def redraw_window():
         win.blit(bg, (0,0))
@@ -186,7 +194,6 @@ def redraw_window():
 running = True
 
 while running:
-	
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			running = False
@@ -206,8 +213,9 @@ while running:
 				moving_down = True
 			if event.key == pygame.K_SPACE:
 				shoot_bullet()
-			if event.key ==pygame.K_x:
+			if event.key == pygame.K_x:
 				shoot_bullet1()
+
 		if event.type == pygame.MOUSEBUTTONDOWN:
 			if home_page:
 				home_page = False
@@ -220,7 +228,7 @@ while running:
 				click_fx.play()
 			elif game_page:	
 				x, y = event.pos
-				if p.rect.collidepoint((x,y)):
+				if p.rect.collidepoint((x, y)):
 					shoot_bullet()
 				elif x <= WIDTH // 2:
 					moving_left = True
@@ -230,7 +238,6 @@ while running:
 					moving_up = True
 				elif y > HEIGHT // 2:
 					moving_down = True
-				
 
 		if event.type == pygame.KEYUP:
 			moving_left = False
@@ -265,9 +272,13 @@ while running:
 		win.blit(logo_img, (100, 80))
 		game_over_msg.update()
 		final_score_msg.update(score)
-		"""hight_score_surface = game_font.pygame.font.render(f'Hight Score:{int(hight_score)}', True, WHITE)
-		hight_score_rect = hight_score_surface.get_rect(center = (350, 30))
-		SCREEN.blit(hight_score_surface, hight_score_rect)"""
+
+		update_high_score()
+		hight_score_msg.update(high_score)
+		high_score_surface = pygame.font.SysFont(hight_score_font, 30).render("High Score", True, WHITE)
+		high_score_rect = high_score_surface.get_rect(center=(WIDTH//2, 375))
+		win.blit(high_score_surface, high_score_rect)
+
 		"""hight_score_msg = update_score(score, hight_score)"""
 		"""score += score
 		score_display('score_page')"""
@@ -337,7 +348,7 @@ while running:
 				level += 1
 				plane_destroy_count = 0
 
-		p.fuel -= 0.05
+		p.fuel -= 0.045
 		bg.update(1)
 		"""win.blit(clouds_img, (0, 70))"""
 
@@ -386,7 +397,7 @@ while running:
 							power = Powerup1(x, y)
 							powerup_group.add(power)
 	
-						elif rand >= 0.3:
+						elif rand >= 0.2:
 							fuel = Fuel(x, y)
 							fuel_group.add(fuel)
 
@@ -414,7 +425,7 @@ while running:
 				p.alive = False
 
 			if pygame.sprite.spritecollide(p, fuel_group, True):
-				p.fuel += 25
+				p.fuel += 35
 				if p.fuel >= 100:
 					p.fuel = 100
 				fuel_fx.play()
