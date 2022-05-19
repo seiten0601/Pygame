@@ -6,6 +6,7 @@ SCREEN = WIDTH, HEIGHT = 450, 650
 pygame.mixer.init()
 
 class Background():
+	"""Khởi tạo cửa sổ cho game."""
 	def __init__(self, win):
 		self.win = win
 
@@ -35,6 +36,7 @@ class Background():
 		self.y2 = -HEIGHT
 
 class Player:
+	"""Tạo nhân vật trong game."""
 	def __init__(self, x, y):
 
 		self.image_list = []
@@ -52,7 +54,7 @@ class Player:
 		self.rect = self.image.get_rect(center=(x, y))
 
 		self.counter = 0
-		self.speed = 4
+		self.speed = 3
 		self.health = 100
 		self.fuel = 100
 		self.powerup = 0
@@ -63,6 +65,7 @@ class Player:
 		
 
 	def update(self, moving_left, moving_right, moving_up, moving_down, explosion_group):
+		"""Tạo các tính năng di chuyển trái, phải, lên, xuống cho nhân vật."""
 		if self.alive:
 			if moving_left and self.rect.x > 2:
 				self.rect.x -= self.speed
@@ -97,6 +100,7 @@ class Player:
 			win.blit(self.image, self.rect)
 
 class Enemy(pygame.sprite.Sprite):
+	"""Tạo các máy bay địch."""
 	def __init__(self, x, y, type_):
 		super(Enemy, self).__init__()
 
@@ -142,6 +146,7 @@ class Enemy(pygame.sprite.Sprite):
 		self.fx.play(-1)
 
 	def shoot(self, enemy_bullet_group):
+		"""Cập nhật loại đạn cho từng loại máy bay địch"""
 		if self.type in (1,4):
 			x, y = self.rect.center
 			b = Bullet(x, y, self.type)
@@ -157,6 +162,7 @@ class Enemy(pygame.sprite.Sprite):
 
 
 	def update(self, enemy_bullet_group, explosion_group):
+
 		self.rect.y += self.speed
 		if self.rect.top >= HEIGHT:
 			self.kill()
@@ -184,6 +190,7 @@ class Enemy(pygame.sprite.Sprite):
 		win.blit(self.image, self.rect)
 
 class Bullet(pygame.sprite.Sprite):
+	"""Tạo đạn cho máy bay"""
 	def __init__(self, x, y, type_, dx=None):
 		super(Bullet, self).__init__()
 
@@ -221,12 +228,13 @@ class Bullet(pygame.sprite.Sprite):
 			self.dx = 0
 
 		self.damage_dict = {1:5, 2:10, 3:15, 4:25, 5: 25, 6:20}
+		"""Sức mạnh đạn của từng lần bắn"""
 		self.damage = self.damage_dict[type_]
 		if powerup_bullet:
 			self.damage = 60
 		if powerup1_bullet:
 			self.damage = 90
-
+		"""Tạo sức mạnh của hai powerup"""
 	def update(self):
 		self.rect.x += self.dx
 		self.rect.y += self.speed
@@ -240,6 +248,7 @@ class Bullet(pygame.sprite.Sprite):
 
 
 class Explosion(pygame.sprite.Sprite):
+	"""Tạo  sự kiện nổ khi va chạm máy bay"""
 	def __init__(self, x, y, type_):
 		super(Explosion, self).__init__()
 
@@ -280,6 +289,7 @@ class Explosion(pygame.sprite.Sprite):
 
 
 class Fuel(pygame.sprite.Sprite):
+	"""Tạo năng lượng."""
 	def __init__(self, x, y):
 		super(Fuel, self).__init__()
 
@@ -295,6 +305,7 @@ class Fuel(pygame.sprite.Sprite):
 		win.blit(self.image, self.rect)
 
 class Powerup(pygame.sprite.Sprite):
+	"""Tạo Powerup thứ nhất."""
 	def __init__(self, x, y):
 		super(Powerup, self).__init__()
 
@@ -309,6 +320,7 @@ class Powerup(pygame.sprite.Sprite):
 	def draw(self, win):
 		win.blit(self.image, self.rect)
 class Powerup1(pygame.sprite.Sprite):
+	"""Tạo Powerup thứ hai."""
 	def __init__(self, x, y):
 		super(Powerup1, self).__init__()
 
@@ -324,6 +336,7 @@ class Powerup1(pygame.sprite.Sprite):
 		win.blit(self.image, self.rect)
 
 class Button(pygame.sprite.Sprite):
+	"""Tạo các nút khi thua game."""
 	def __init__(self, img, scale, x, y):
 		super(Button, self).__init__()
 		

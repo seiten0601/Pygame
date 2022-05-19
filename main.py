@@ -1,10 +1,12 @@
 from ast import While
 import random
-import pygame
+import pygame, sys
 pygame.font.init()
 from objects import Background, Player, Enemy, Bullet, Explosion, Fuel, Powerup, Powerup1, Button, Message, BlinkingText
 pygame.init()
+
 SCREEN = WIDTH, HEIGHT = 450, 650
+"""Tạo kích thước cửa sổ game."""
 enemies = []
 info = pygame.display.Info()
 width = info.current_w
@@ -14,7 +16,6 @@ if width >= height:
 	win = pygame.display.set_mode(SCREEN, pygame.NOFRAME)
 else:
 	win = pygame.display.set_mode(SCREEN, pygame.NOFRAME | pygame.SCALED | pygame.FULLSCREEN)
-
 clock = pygame.time.Clock()
 FPS = 60
 
@@ -43,7 +44,7 @@ sound_off_img = pygame.image.load("Assets/Buttons/soundOffBtn.png")
 sound_on_img = pygame.image.load("Assets/Buttons/soundOnBtn.png")
 
 
-# BUTTONS *********************************************************************
+# BUTTONS ********************************************************************
 
 home_btn = Button(home_img, (60, 60), WIDTH // 4 - 18, HEIGHT//2 + 120)	
 spaceshipred_btn = Button(spaceshipred_img, (24, 24), WIDTH // 4 - 18, HEIGHT//2 + 120)
@@ -52,7 +53,7 @@ replay_btn = Button(replay_img, (60,60), WIDTH // 2  - 18, HEIGHT//2 + 120)
 sound_btn = Button(sound_on_img, (60, 60), WIDTH - WIDTH // 4 - 18, HEIGHT//2 + 120)
 
 
-# FONTS ***********************************************************************
+# FONTS **********************************************************************
 game_font ='Fonts/DroneflyRegular-K78LA.ttf'
 game_over_font = 'Fonts/ghostclan.ttf'
 tap_to_play_font = 'Fonts/BubblegumSans-Regular.ttf'
@@ -97,6 +98,7 @@ powerup1_group = pygame.sprite.Group()
 
 # HÀM *******************************************************************
 def score_display(game_state):
+	"""Hàm tính điểm và điểm cao nhất"""
 	if game_state == 'game_page':
 		score_surface = game_font.pygame.font.render(f' Score:{int(score)}', True, WHITE)
 		score_rect = hight_score_surface.get_rect(center = (350, 30))
@@ -106,8 +108,8 @@ def score_display(game_state):
 		hight_score_rect = hight_score_surface.get_rect(center = (350, 30))
 		SCREEN.blit(hight_score_surface, hight_score_rect)
 
-
 def shoot_bullet():
+	"""Hàm tạo trạng thái của đạn."""
 	x, y = p.rect.center[0], p.rect.y
 	if p.powerup > 0:
 		for dx in range(-3, 4):
@@ -121,6 +123,7 @@ def shoot_bullet():
 
 
 def shoot_bullet1():
+	"""Hàm tạo trạng thái của đạn."""
 	x, y = p.rect.center[0], p.rect.y
 
 	if  p.powerup > 0:
@@ -146,6 +149,7 @@ def reset():
 
 
 def update_high_score():
+	"""Hàm cập nhật High score"""
 	global score, high_score
 
 	if score > high_score:
@@ -172,238 +176,186 @@ high_score = 0
 sound_on = False
 
 
-def redraw_window():
-        win.blit(bg, (0,0))
-        # draw text
-        
-        level_label = main_font.render(f"Level: {level}", 1, (255,255,255))
-        win.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
-
-        for enemy in enemies:
-            enemy.draw(win)
-
-        Player.draw(win)
-
-        """if lost:
-            lost_label = lost_font.render("You Lost!!", 1, (255,255,255))
-            WIN.blit(lost_label, (WIDTH/2 - lost_label.get_width()/2, 350))"""
-
-        pygame.display.update()
 
 
 running = True
 
 while running:
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			running = False
-
-		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
+		for event in pygame.event.get():
+			
+			if event.type == pygame.QUIT:
 				running = False
 
-		if event.type == pygame.KEYDOWN and game_page:
-			if event.key == pygame.K_LEFT:
-				moving_left = True
-			if event.key == pygame.K_RIGHT:
-				moving_right = True
-			if event.key == pygame.K_UP: 
-				moving_up = True
-			if event.key == pygame.K_DOWN:
-				moving_down = True
-			if event.key == pygame.K_SPACE:
-				shoot_bullet()
-			if event.key == pygame.K_x:
-				shoot_bullet1()
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
+					"""Nhấn q hoặc Esc để thoát trò chơi."""
+					running = False
 
-		if event.type == pygame.MOUSEBUTTONDOWN:
-			if home_page:
-				home_page = False
-				menu_page = True
-				click_fx.play()
-			if menu_page:
-				home_page = False
-				menu_page = False
-				game_page = True
-				click_fx.play()
-			elif game_page:	
-				x, y = event.pos
-				if p.rect.collidepoint((x, y)):
-					shoot_bullet()
-				elif x <= WIDTH // 2:
+			if event.type == pygame.KEYDOWN and game_page:
+				"""Các nút di chuyển."""
+				if event.key == pygame.K_LEFT:
 					moving_left = True
-				elif x > WIDTH // 2:
+				if event.key == pygame.K_RIGHT:
 					moving_right = True
-				elif y <= HEIGHT // 2:
+				if event.key == pygame.K_UP: 
 					moving_up = True
-				elif y > HEIGHT // 2:
+				if event.key == pygame.K_DOWN:
 					moving_down = True
+				if event.key == pygame.K_SPACE:
+					shoot_bullet()
+				if event.key == pygame.K_x:
+					shoot_bullet1()
 
-		if event.type == pygame.KEYUP:
-			moving_left = False
-			moving_right = False
-			moving_down = False
-			moving_up = False
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				if home_page:
+					home_page = False
+					menu_page = True
+					click_fx.play()
+				if menu_page:
+					home_page = False
+					menu_page = False
+					game_page = True
+					click_fx.play()
+				elif game_page():	
+					x, y = event.pos
+					if p.rect.collidepoint((x, y)):
+						shoot_bullet()
+					elif x <= WIDTH // 2:
+						moving_left = True
+					elif x > WIDTH // 2:
+						moving_right = True
+					elif y <= HEIGHT // 2:
+						moving_up = True
+					elif y > HEIGHT // 2:
+						moving_down = True
 
-		if event.type == pygame.MOUSEBUTTONUP:
-			moving_left = False
-			moving_right = False
-			moving_down = False
-			moving_up = False
+			if event.type == pygame.KEYUP:
+				moving_left = False
+				moving_right = False
+				moving_down = False
+				moving_up = False
 
-	if home_page:
-		win.fill(BLACK)
-		win.blit(logo_img, (100, 80))
-		win.blit(fighter_img, (WIDTH//2 - 50, HEIGHT//2 + 40))
-		pygame.draw.circle(win, WHITE, (WIDTH//2, HEIGHT//2 + 90), 50, 4)
-		tap_to_play_msg.update()
+			if event.type == pygame.MOUSEBUTTONUP:
+				moving_left = False
+				moving_right = False
+				moving_down = False
+				moving_up = False
 
-	if menu_page:
-		win.fill(BLACK)
-		win.blit(spaceshipred_img, (10,60))
-		win.blit(spaceshipyellow_img, (40,60))
-		win.blit(fighter_img, (WIDTH//2 - 50, HEIGHT//2))
-		pygame.draw.circle(win, WHITE, (WIDTH//2, HEIGHT//2 + 50), 50, 4)
-		tap_to_play_msg.update()
+		if home_page:
+			"""Giao diện trang chủ."""
+			win.fill(BLACK)
+			win.blit(logo_img, (100, 80))
+			win.blit(fighter_img, (WIDTH//2 - 50, HEIGHT//2 + 40))
+			pygame.draw.circle(win, WHITE, (WIDTH//2, HEIGHT//2 + 90), 50, 4)
+			tap_to_play_msg.update()
 
-	if score_page:
-		win.fill(BLACK)
+		if menu_page:
+			win.fill(BLACK)
+			win.blit(spaceshipred_img, (10,60))
+			win.blit(spaceshipyellow_img, (40,60))
+			win.blit(fighter_img, (WIDTH//2 - 50, HEIGHT//2))
+			pygame.draw.circle(win, WHITE, (WIDTH//2, HEIGHT//2 + 50), 50, 4)
+			tap_to_play_msg.update()
 
-		win.blit(logo_img, (100, 80))
-		game_over_msg.update()
-		final_score_msg.update(score)
+		if score_page:
+			"""Giao diện trang score."""
+			win.fill(BLACK)
 
-		update_high_score()
-		hight_score_msg.update(high_score)
-		high_score_surface = pygame.font.SysFont(hight_score_font, 30).render("High Score", True, WHITE)
-		high_score_rect = high_score_surface.get_rect(center=(WIDTH//2, 375))
-		win.blit(high_score_surface, high_score_rect)
+			win.blit(logo_img, (100, 80))
+			game_over_msg.update()
+			final_score_msg.update(score)
 
-		"""hight_score_msg = update_score(score, hight_score)"""
-		"""score += score
-		score_display('score_page')"""
-		"""hight_score = update_score(score, hight_score)"""
-		if home_btn.draw(win):
-			home_page = True
-			game_page = False
-			score_page = False
-			reset()
-			click_fx.play()
+			update_high_score()
+			hight_score_msg.update(high_score)
+			high_score_surface = pygame.font.SysFont(hight_score_font, 30).render("High Score", True, WHITE)
+			high_score_rect = high_score_surface.get_rect(center=(WIDTH//2, 375))
+			win.blit(high_score_surface, high_score_rect)
 
-			plane_destroy_count = 0
-			level = 1
-			score = 0
-		"""if spaceshipred_btn.draw(win):
-			home_page = False
-			game_page = True
-			reset()
-			click_fx.play()
+			if home_btn.draw(win):
+				home_page = True
+				game_page = False
+				score_page = False
+				reset()
+				click_fx.play()
 
-			plane_destroy_count = 0
-			score = 0"""
-
-		if replay_btn.draw(win):
-			score_page = False
-			game_page = True
-			reset()
-			click_fx.play()
-
-			plane_destroy_count = 0
-			level = 1
-			score = 0
-
-		if sound_btn.draw(win):
-			sound_on = not sound_on
-
-			if sound_on:
-				sound_btn.update_image(sound_on_img)
-				pygame.mixer.music.play(loops=-1)
-			else:
-				sound_btn.update_image(sound_off_img)
-				pygame.mixer.music.stop()
-
-	if game_page:
-		
-		current_time = pygame.time.get_ticks()
-		delta_time = current_time - start_time
-		if delta_time >= plane_frequency:
-			if level == 1:
-				type = 1
-			elif level == 2:
-				type = 2
-			elif level == 3:
-				type = 3
-			elif level == 4:
-				type = random.randint(4, 5)
-			elif level == 5:
-				type = random.randint(1, 5)
-
-			x = random.randint(10, WIDTH - 100)
-			e = Enemy(x, -150, type)
-			enemy_group.add(e)
-			start_time = current_time
-
-		if plane_destroy_count:
-			if plane_destroy_count % 5 == 0 and level < 5:
-				level += 1
 				plane_destroy_count = 0
+				level = 1
+				score = 0
 
-		p.fuel -= 0.045
-		bg.update(1)
-		"""win.blit(clouds_img, (0, 70))"""
+			if replay_btn.draw(win):
+				score_page = False
+				game_page = True
+				reset()
+				click_fx.play()
 
-		p.update(moving_left, moving_right, moving_up, moving_down, explosion_group)
-		p.draw(win)
+				plane_destroy_count = 0
+				level = 1
+				score = 0
 
-		player_bullet_group.update()
-		player_bullet_group.draw(win)	
-		enemy_bullet_group.update()
-		enemy_bullet_group.draw(win)
-		explosion_group.update()
-		explosion_group.draw(win)
-		fuel_group.update()
-		fuel_group.draw(win)
-		powerup_group.update()
-		powerup1_group.update()
-		powerup_group.draw(win)
-		powerup1_group.draw(win)
+			if sound_btn.draw(win):
+				sound_on = not sound_on
 
-		enemy_group.update(enemy_bullet_group, explosion_group)
-		enemy_group.draw(win)
+				if sound_on:
+					sound_btn.update_image(sound_on_img)
+					pygame.mixer.music.play(loops=-1)
+				else:
+					sound_btn.update_image(sound_off_img)
+					pygame.mixer.music.stop()
 
-		if p.alive:
-			player_hit = pygame.sprite.spritecollide(p, enemy_bullet_group, False)
-			for bullet in player_hit:
-				p.health -= bullet.damage
-				
-				x, y = bullet.rect.center
-				explosion = Explosion(x, y, 1)
-				explosion_group.add(explosion)
+		if game_page:
+			"""Giao diện màn hình chính khi chơi game."""
+			current_time = pygame.time.get_ticks()
+			delta_time = current_time - start_time
+			if delta_time >= plane_frequency:
+				if level == 1:
+					type = 1
+				elif level == 2:
+					type = 2
+				elif level == 3:
+					type = 3
+				elif level == 4:
+					type = random.randint(4, 5)
+				elif level == 5:
+					type = random.randint(1, 5)
 
-				bullet.kill()
-				collision_fx.play()
+				x = random.randint(10, WIDTH - 100)
+				e = Enemy(x, -150, type)
+				enemy_group.add(e)
+				start_time = current_time
 
-			for bullet in player_bullet_group:
-				planes_hit = pygame.sprite.spritecollide(bullet, enemy_group, False)
-				for plane in planes_hit:
-					plane.health -= bullet.damage
-					if plane.health <= 0:
-						x, y = plane.rect.center
-						rand = random.random()
-						if rand >= 0.8:
-							power = Powerup(x, y)
-							powerup_group.add(power)
-						elif rand >= 0.5:
-							power = Powerup1(x, y)
-							powerup_group.add(power)
-	
-						elif rand >= 0.2:
-							fuel = Fuel(x, y)
-							fuel_group.add(fuel)
+			if plane_destroy_count:
+				if plane_destroy_count % 5 == 0 and level < 5:
+					level += 1
+					plane_destroy_count = 0
 
-						plane_destroy_count += 1
-						blast_fx.play()
+			p.fuel -= 0.035
+			bg.update(1)
+			"""win.blit(clouds_img, (0, 70))"""
 
+			p.update(moving_left, moving_right, moving_up, moving_down, explosion_group)
+			p.draw(win)
+
+			player_bullet_group.update()
+			player_bullet_group.draw(win)	
+			enemy_bullet_group.update()
+			enemy_bullet_group.draw(win)
+			explosion_group.update()
+			explosion_group.draw(win)
+			fuel_group.update()
+			fuel_group.draw(win)
+			powerup_group.update()
+			powerup1_group.update()
+			powerup_group.draw(win)
+			powerup1_group.draw(win)
+
+			enemy_group.update(enemy_bullet_group, explosion_group)
+			enemy_group.draw(win)
+
+			if p.alive:
+				player_hit = pygame.sprite.spritecollide(p, enemy_bullet_group, False)
+				for bullet in player_hit:
+					p.health -= bullet.damage
+					
 					x, y = bullet.rect.center
 					explosion = Explosion(x, y, 1)
 					explosion_group.add(explosion)
@@ -411,48 +363,80 @@ while running:
 					bullet.kill()
 					collision_fx.play()
 
-			player_collide = pygame.sprite.spritecollide(p, enemy_group, True)
-			if player_collide:
-				x, y = p.rect.center
-				explosion = Explosion(x, y, 2)
-				explosion_group.add(explosion)
-
-				x, y = player_collide[0].rect.center
-				explosion = Explosion(x, y, 2)
-				explosion_group.add(explosion)
-				
-				p.health = 0
-				p.alive = False
-
-			if pygame.sprite.spritecollide(p, fuel_group, True):
-				p.fuel += 35
-				if p.fuel >= 100:
-					p.fuel = 100
-				fuel_fx.play()
-
-			if pygame.sprite.spritecollide(p, powerup_group, True):
-				p.powerup += 2
-				fuel_fx.play()
-
-		if not p.alive or p.fuel <= -10:
-			if len(explosion_group) == 0:
-				game_page = False
-				score_page = True
-				reset()
-
-		score += 1
-		score_msg.update(score)
+				for bullet in player_bullet_group:
+					"""Tạo ngẫu nhiên nguyên liệu hoặc Powerup."""
+					planes_hit = pygame.sprite.spritecollide(bullet, enemy_group, False)
+					for plane in planes_hit:
+						plane.health -= bullet.damage
+						if plane.health <= 0:
+							x, y = plane.rect.center
+							rand = random.random()
+							if rand >= 0.8:
+								power = Powerup(x, y)
+								powerup_group.add(power)
+							elif rand >= 0.5:
+								power = Powerup1(x, y)
+								powerup_group.add(power)
 		
-		fuel_color = RED if p.fuel <= 40 else GREEN
-		pygame.draw.rect(win, fuel_color, (30, 20, p.fuel, 10), border_radius=4)
-		pygame.draw.rect(win, WHITE, (30, 20, 100, 10), 2, border_radius=4)
-		pygame.draw.rect(win, BLUE, (30, 32, p.health, 10), border_radius=4)
-		pygame.draw.rect(win, WHITE, (30, 32, 100, 10), 2, border_radius=4)
-		win.blit(plane_img, (10, 15))
+							elif rand >= 0.3:
+								fuel = Fuel(x, y)
+								fuel_group.add(fuel)
 
-	pygame.draw.rect(win, WHITE, (0,0, WIDTH, HEIGHT), 5, border_radius=4)
-	clock.tick(FPS)
+							plane_destroy_count += 1
+							blast_fx.play()
 
-	pygame.display.update()
+						x, y = bullet.rect.center
+						explosion = Explosion(x, y, 1)
+						explosion_group.add(explosion)
+
+						bullet.kill()
+						collision_fx.play()
+
+				player_collide = pygame.sprite.spritecollide(p, enemy_group, True)
+				if player_collide:
+					"""Sự kiện va chạm."""
+					x, y = p.rect.center
+					explosion = Explosion(x, y, 2)
+					explosion_group.add(explosion)
+
+					x, y = player_collide[0].rect.center
+					explosion = Explosion(x, y, 2)
+					explosion_group.add(explosion)
+					
+					p.health = 0
+					p.alive = False
+
+				if pygame.sprite.spritecollide(p, fuel_group, True):
+					p.fuel += 25
+					if p.fuel >= 100:
+						p.fuel = 100
+					fuel_fx.play()
+
+				if pygame.sprite.spritecollide(p, powerup_group, True):
+					p.powerup += 2
+					fuel_fx.play()
+
+			if not p.alive or p.fuel <= -10:
+				"""Thua game."""
+				if len(explosion_group) == 0:
+					game_page = False
+					score_page = True
+					reset()
+
+			score += 1
+			score_msg.update(score)
+			
+			fuel_color = RED if p.fuel <= 40 else GREEN
+			pygame.draw.rect(win, fuel_color, (30, 20, p.fuel, 10), border_radius=4)
+			pygame.draw.rect(win, WHITE, (30, 20, 100, 10), 2, border_radius=4)
+			pygame.draw.rect(win, BLUE, (30, 32, p.health, 10), border_radius=4)
+			pygame.draw.rect(win, WHITE, (30, 32, 100, 10), 2, border_radius=4)
+			win.blit(plane_img, (10, 15))
+			"""Tạo hai thanh năng lượng."""
+
+		pygame.draw.rect(win, WHITE, (0,0, WIDTH, HEIGHT), 5, border_radius=4)
+		clock.tick(FPS)
+
+		pygame.display.update()
 
 pygame.quit()
